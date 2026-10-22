@@ -1293,13 +1293,28 @@
             font-size: 14px; color: #555; margin-bottom: 24px; line-height: 1.5;
         }
         .az-input-group {
-            margin-bottom: 16px;
+            margin-bottom: 14px;
         }
-        .az-popup-box input {
+        .az-input-row {
+            display: flex;
+            gap: 12px;
+        }
+        .az-input-row .az-input-group {
+            flex: 1;
+        }
+        .az-popup-box input,
+        .az-popup-box select,
+        .az-popup-box textarea {
             width: 100%; padding: 12px; box-sizing: border-box; 
             border: 1px solid #ccc; border-radius: 4px; font-size: 14px;
+            font-family: inherit;
         }
-        .az-popup-box input:focus {
+        .az-popup-box textarea {
+            resize: vertical; min-height: 80px;
+        }
+        .az-popup-box input:focus,
+        .az-popup-box select:focus,
+        .az-popup-box textarea:focus {
             border-color: #000; outline: none;
         }
         .az-submit-btn {
@@ -1312,6 +1327,12 @@
         }
         #azFormStatus {
             display: none; margin-top: 16px; font-size: 14px; font-weight: 500; text-align: center;
+        }
+        @media (max-width: 480px) {
+            .az-input-row {
+                flex-direction: column;
+                gap: 0;
+            }
         }
 
   </style>
@@ -2619,11 +2640,48 @@
             <p>Tell us what you're trying to build, promote or automate. Let's grow your digital presence.</p>
             
             <form id="azLeadForm">
-                <div class="az-input-group">
-                    <input type="text" id="azName" placeholder="Your Name" required>
+                <div class="az-input-row">
+                    <div class="az-input-group">
+                        <input type="text" id="azName" placeholder="Your Name" autocomplete="name" required>
+                    </div>
+                    <div class="az-input-group">
+                        <input type="email" id="azEmail" placeholder="Email Address" autocomplete="email" required>
+                    </div>
+                </div>
+                <div class="az-input-row">
+                    <div class="az-input-group">
+                        <input type="tel" id="azPhone" placeholder="Phone Number" autocomplete="tel">
+                    </div>
+                    <div class="az-input-group">
+                        <input type="text" id="azLocation" placeholder="Location" autocomplete="off">
+                    </div>
                 </div>
                 <div class="az-input-group">
-                    <input type="email" id="azEmail" placeholder="Email Address" required>
+                    <select id="azService" required>
+                        <option value="">I want to...</option>
+                        <option value="Build Software">Build Software</option>
+                        <option value="AI Solution">AI Solution</option>
+                        <option value="Digital Marketing">Digital Marketing</option>
+                        <option value="Website Development">Website Development</option>
+                        <option value="Consulting">Consulting</option>
+                    </select>
+                </div>
+                <div class="az-input-row">
+                    <div class="az-input-group">
+                        <input type="text" id="azBudget" placeholder="Budget (optional)">
+                    </div>
+                    <div class="az-input-group">
+                        <select id="azTimeline">
+                            <option value="">When?</option>
+                            <option value="Immediately">Immediately</option>
+                            <option value="Within 1 month">Within 1 month</option>
+                            <option value="Within 3 months">Within 3 months</option>
+                            <option value="Just researching">Just researching</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="az-input-group">
+                    <textarea id="azMessage" placeholder="Tell us about your project..."></textarea>
                 </div>
                 <button type="submit" class="az-submit-btn">Send enquiry</button>
             </form>
@@ -2832,11 +2890,17 @@ document.getElementById('azLeadForm').addEventListener('submit', async (e) => {
 
     const payload = {
         name: document.getElementById('azName').value,
-        email: document.getElementById('azEmail').value
+        email: document.getElementById('azEmail').value,
+        phone: document.getElementById('azPhone').value,
+        location: document.getElementById('azLocation').value,
+        service: document.getElementById('azService').value,
+        budget: document.getElementById('azBudget').value,
+        timeline: document.getElementById('azTimeline').value,
+        message: document.getElementById('azMessage').value
     };
 
     // Notice: NO Google URLs or passwords are seen here anymore!
-    const BACKEND_URL = "/functions/submit-lead";
+    const BACKEND_URL = "/submit-lead";
 
     try {
         const response = await fetch(BACKEND_URL, {

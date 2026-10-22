@@ -2926,6 +2926,63 @@ document.getElementById('azLeadForm').addEventListener('submit', async (e) => {
 });
 
   </script>
+  <script>
+  // Popup trigger logic
+  const azPopup = document.getElementById('azLeadPopup');
+
+  function openAzPopup() {
+    azPopup.style.display = 'flex';
+  }
+
+  function closeAzPopup() {
+    azPopup.style.display = 'none';
+  }
+
+  // Show once per browser session, ~1 second after load and after 5% scroll
+  let azPageReady = false;
+  let azDismissed = false;
+
+  function azMaybeShowPopup() {
+    if (azDismissed) return;
+    const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+    const scrolled = scrollable > 0 ? window.scrollY / scrollable : 1;
+    if (azPageReady && scrolled >= 0.05) {
+      azDismissed = true;
+      openAzPopup();
+      sessionStorage.setItem('azPopupShown', '1');
+      window.removeEventListener('scroll', azMaybeShowPopup);
+    }
+  }
+
+  window.addEventListener('load', () => {
+    if (sessionStorage.getItem('azPopupShown')) return;
+    setTimeout(() => {
+      azPageReady = true;
+      azMaybeShowPopup();
+      // Fallback: if user never scrolls, still show within a second of landing
+      setTimeout(() => {
+        if (!azDismissed) {
+          azDismissed = true;
+          openAzPopup();
+          sessionStorage.setItem('azPopupShown', '1');
+          window.removeEventListener('scroll', azMaybeShowPopup);
+        }
+      }, 1000);
+    }, 800);
+  });
+
+  window.addEventListener('scroll', azMaybeShowPopup, { passive: true });
+
+  // Close when clicking the dark overlay outside the box
+  azPopup.addEventListener('click', (e) => {
+    if (e.target === azPopup) closeAzPopup();
+  });
+
+  // Close with the Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && azPopup.style.display === 'flex') closeAzPopup();
+  });
+  </script>
 
 </body>
 

@@ -18,11 +18,15 @@ export async function onRequestPost(context) {
             token: SECRET_PASSWORD
         };
 
-        // Forward the data to Google Sheets
+        // Forward the data to Google Sheets as form-urlencoded,
+        // so Apps Script receives it in e.parameter (JSON bodies
+        // are NOT parsed into e.parameter by Apps Script).
+        const formBody = new URLSearchParams(payload);
+
         const googleResponse = await fetch(GOOGLE_WEB_APP_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: formBody.toString()
         });
 
         // FIX: Extract the raw text response safely instead of parsing strict JSON
